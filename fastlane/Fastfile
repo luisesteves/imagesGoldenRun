@@ -1,0 +1,7 @@
+lane :test do
+  imagesgoldenrun(
+  	goldenRunLoc: "/Users/esteves/Google Drive/Exercicios/Ruby/imageCompare/goldenRun",
+  	resultLoc: "/Users/esteves/Google Drive/Exercicios/Ruby/imageCompare/results",
+  	excludeArea: "284, 9, 380, 27"
+  	)
+end
