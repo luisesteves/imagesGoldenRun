@@ -8,7 +8,8 @@ module Fastlane
     class ImagesgoldenrunAction < Action
       def self.run(params)
 
-        differencesPath = "imagesGoldenRun/differences"
+        differencesFolder = "imagesGoldenRunReport"
+        differencesPath = "#{differencesFolder}/differences"
         FileUtils.mkdir_p(differencesPath)
 
         Dir.foreach(differencesPath) do |f|
@@ -16,23 +17,32 @@ module Fastlane
           File.delete(fp) if !File.directory?(fp)
         end
 
+        #html report
         goldenRunReport = "<html><body><htmlImages></body></html>"
         htmlImages = ""
-        goldenRunImagesNames = Dir.entries(params[:goldenRunLoc]).select {|f| f.end_with? ".png"}
+        
+        goldenRunLoc = File.expand_path(File.join(Dir.pwd, params[:goldenRunLoc]))
+        goldenRunImagesNames = Dir.entries(goldenRunLoc).select {|f| f.end_with? ".png"}
         goldenRunImagesNames.each do |imageName|
-          imgG = "#{params[:goldenRunLoc]}/#{imageName}"
-          imgR = "#{params[:resultLoc]}/#{imageName}"
+
+          imgFullPathG = "#{params[:goldenRunLoc]}/#{imageName}"
+          imgFullPathR = "#{params[:resultLoc]}/#{imageName}"
           excludeArea = params[:excludeArea].gsub(/\s+/, '').split(",").map { |e| e.to_i }
-          res = Imatcher.compare(imgG, imgR, exclude_rect: excludeArea)
+          res = Imatcher.compare(imgFullPathG, imgFullPathR, exclude_rect: excludeArea)
           r = res.match?
           unless r
-            img = "#{differencesPath}/#{imageName}"
-            res.difference_image.save(img)
-            htmlImages += "<h2>#{imageName}</h2><img src='../#{img}' style='height:50%;' onclick='window.open(this.src)'>"
+            #save the result image
+            imagesGoldenRunReportFullPath = "#{differencesPath}/#{imageName}"
+            res.difference_image.save(imagesGoldenRunReportFullPath)
+
+            #html report
+            htmlImages += "<h2>#{imageName}</h2><img src='../#{imagesGoldenRunReportFullPath}' style='height:50%;' onclick='window.open(this.src)'>"
           end
         end
+
+        #html report
         goldenRunReport.gsub!("<htmlImages>", htmlImages)
-        File.open("imagesGoldenRun/report.html", "w") { |file| file.write(goldenRunReport) }
+        File.open("#{differencesFolder}/report.html", "w") { |file| file.write(goldenRunReport) }
       end
 
       def self.description
@@ -55,13 +65,13 @@ module Fastlane
       def self.available_options
         [
             FastlaneCore::ConfigItem.new(key: :goldenRunLoc,
-                                         description: 'Golden run images location',
+                                         description: "Golden run images relative path (e.g. 'images/goldenRun')",
                                          optional: false),
             FastlaneCore::ConfigItem.new(key: :resultLoc,
-                                         description: 'Results images location',
+                                         description: "Results images relative path (e.g. 'images/results)",
                                          optional: false),
             FastlaneCore::ConfigItem.new(key: :excludeArea,
-                                         description: 'Results images location',
+                                         description: 'Area for the exclusion',
                                          optional: false)
         ]
       end
