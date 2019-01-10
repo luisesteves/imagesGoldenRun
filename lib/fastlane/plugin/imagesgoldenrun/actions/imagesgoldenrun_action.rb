@@ -55,7 +55,7 @@ module Fastlane
         goldenRunReport.gsub!("<htmlImages>", hasDifferences ? htmlImages : "<h3>No differences found<h3>")
         File.open("#{differencesFolder}/report.html", "w") { |file| file.write(goldenRunReport) }
 
-        if hasDifferences
+        if hasDifferences && params[:failWhenDiffs]
           UI.message("Error: ".red + "Some differences found".red)
           raise Exception
         end
@@ -88,7 +88,11 @@ module Fastlane
                                          optional: false),
             FastlaneCore::ConfigItem.new(key: :excludeArea,
                                          description: 'Area for the exclusion',
-                                         optional: false)
+                                         optional: false),
+            FastlaneCore::ConfigItem.new(key: :failWhenDiffs,
+                                         description: 'Area for the exclusion',
+                                         optional: true,
+                                         default_value: false)
         ]
       end
 
