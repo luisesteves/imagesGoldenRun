@@ -18,9 +18,10 @@ module Fastlane
         end
 
         #html report
-        goldenRunReport = "<html><body><htmlImages></body></html>"
+        goldenRunReport = "<html><body><h2>Images Gonden Run results<h2><p><htmlImages></body></html>"
         htmlImages = ""
         imgExtension = ".png"
+        hasDifferences = false
         
         goldenRunLoc = File.expand_path(File.join(Dir.pwd, params[:goldenRunLoc]))
         resultsLoc = File.expand_path(File.join(Dir.pwd, params[:resultLoc]))
@@ -40,6 +41,7 @@ module Fastlane
           res = Imatcher.compare(imgFullPathGolden, imgFullPathResult, exclude_rect: excludeArea)
           r = res.match?
           unless r
+            hasDifferences = true
             #save the result image
             imagesGoldenRunReportFullPath = "#{differencesPath}/#{imageName}"
             res.difference_image.save(imagesGoldenRunReportFullPath)
@@ -50,8 +52,13 @@ module Fastlane
         end
 
         #html report
-        goldenRunReport.gsub!("<htmlImages>", htmlImages)
+        goldenRunReport.gsub!("<htmlImages>", hasDifferences ? htmlImages : "<h3>No differences found<h3>")
         File.open("#{differencesFolder}/report.html", "w") { |file| file.write(goldenRunReport) }
+
+        if hasDifferences
+          UI.message("Error: ".red + "Some differences found".red)
+          raise Exception
+        end
       end
 
       def self.description
