@@ -20,15 +20,24 @@ module Fastlane
         #html report
         goldenRunReport = "<html><body><htmlImages></body></html>"
         htmlImages = ""
+        imgExtension = ".png"
         
         goldenRunLoc = File.expand_path(File.join(Dir.pwd, params[:goldenRunLoc]))
-        goldenRunImagesNames = Dir.entries(goldenRunLoc).select {|f| f.end_with? ".png"}
+        resultsLoc = File.expand_path(File.join(Dir.pwd, params[:resultLoc]))
+
+        goldenRunImagesNames = Dir.entries(goldenRunLoc).select {|f| f.end_with?(imgExtension)}
+
         goldenRunImagesNames.each do |imageName|
 
-          imgFullPathG = "#{params[:goldenRunLoc]}/#{imageName}"
-          imgFullPathR = "#{params[:resultLoc]}/#{imageName}"
+          imgFullPathGolden = "#{params[:goldenRunLoc]}/#{imageName}"
+
+          #find the full name of the result file
+          resultImageName = Dir.entries(resultsLoc).select {|f| f.start_with? imageName.gsub(imgExtension, "") }.first
+
+          imgFullPathResult = "#{params[:resultLoc]}/#{resultImageName}"
+
           excludeArea = params[:excludeArea].gsub(/\s+/, '').split(",").map { |e| e.to_i }
-          res = Imatcher.compare(imgFullPathG, imgFullPathR, exclude_rect: excludeArea)
+          res = Imatcher.compare(imgFullPathGolden, imgFullPathResult, exclude_rect: excludeArea)
           r = res.match?
           unless r
             #save the result image
