@@ -8,8 +8,9 @@ module Fastlane
     class ImagesgoldenrunAction < Action
       def self.run(params)
 
-        differencesFolder = "imagesGoldenRunReport"
-        differencesPath = "#{differencesFolder}/differences"
+        differencesRootFolder = "imagesGoldenRunReport"
+        differencesFolder = "differences"
+        differencesPath = "#{differencesRootFolder}/#{differencesFolder}"
         FileUtils.mkdir_p(differencesPath)
 
         Dir.foreach(differencesPath) do |f|
@@ -47,13 +48,13 @@ module Fastlane
             res.difference_image.save(imagesGoldenRunReportFullPath)
 
             #html report
-            htmlImages += "<h2>#{imageName}</h2><img src='../#{imagesGoldenRunReportFullPath}' style='height:50%;' onclick='window.open(this.src)'>"
+            htmlImages += "<h2>#{imageName}</h2><img src='#{differencesFolder}/#{imageName}' style='height:50%;' onclick='window.open(this.src)'>"
           end
         end
 
         #html report
         goldenRunReport.gsub!("<htmlImages>", hasDifferences ? htmlImages : "<h3>No differences found<h3>")
-        File.open("#{differencesFolder}/report.html", "w") { |file| file.write(goldenRunReport) }
+        File.open("#{differencesRootFolder}/report.html", "w") { |file| file.write(goldenRunReport) }
 
         if hasDifferences && params[:failWhenDiffs]
           UI.message("Error: ".red + "Some differences found".red)
