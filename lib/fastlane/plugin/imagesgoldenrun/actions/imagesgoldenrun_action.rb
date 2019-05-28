@@ -23,18 +23,15 @@ module Fastlane
         htmlImages = ""
         imgExtension = ".png"
         hasDifferences = false
-        
-        goldenRunLoc = File.expand_path(File.join(Dir.pwd, params[:goldenRunLoc]))
-        resultsLoc = File.expand_path(File.join(Dir.pwd, params[:resultLoc]))
 
-        goldenRunImagesNames = Dir.entries(goldenRunLoc).select {|f| f.end_with?(imgExtension)}
+        goldenRunImagesNames = Dir.entries(params[:goldenRunLoc]).select {|f| f.end_with?(imgExtension)}
 
         goldenRunImagesNames.each do |imageName|
 
           imgFullPathGolden = "#{params[:goldenRunLoc]}/#{imageName}"
 
           #find the full name of the result file
-          resultImageName = Dir.entries(resultsLoc).select {|f| f.start_with? imageName.gsub(imgExtension, "") }.first
+          resultImageName = Dir.entries(params[:resultLoc]).select {|f| f.start_with? imageName.gsub(imgExtension, "") }.first
 
           imgFullPathResult = "#{params[:resultLoc]}/#{resultImageName}"
 

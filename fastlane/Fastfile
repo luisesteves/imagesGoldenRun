@@ -1,7 +1,7 @@
 lane :test do
   imagesgoldenrun(
-  	goldenRunLoc: "./goldenRun",
-  	resultLoc: "./results",
+  	goldenRunLoc: "<path>/goldenRun",
+  	resultLoc: "<<path>>/results",
   	excludeArea: "284, 9, 380, 27"
   	)
 end
